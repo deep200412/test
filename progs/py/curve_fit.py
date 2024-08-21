@@ -1,4 +1,4 @@
-#!/global/freeware/Linux/RHEL6/ml/anaconda3-4.2.0/bin/python
+#!/usr/local/bin/python
 import numpy as np
 from scipy.optimize import curve_fit
 
