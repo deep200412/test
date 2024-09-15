@@ -1,0 +1,35 @@
+// This Pine Script™ code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © deep200412
+
+//@version=5
+strategy("CloseBelow10EMA", overlay = true)
+pos = 20
+stoploss = 5
+ema_10 = ta.ema(close, 10)
+ema_20 = ta.ema(close,20)
+ema_50 = ta.ema(close,50)
+ema_200 = ta.ema(close, 200)
+
+startTime = timestamp(2022,1,1)
+endTime = timestamp(2024,9,1)
+
+inTimeWindow = (time >= startTime and time <= endTime) 
+var float buyPrice = 0
+stopPrice = (strategy.position_size > 0 ? buyPrice * (1- stoploss/100.0) : na )
+stopCond = (strategy.position_size > 0) and (close < stopPrice)
+longCond = (strategy.position_size == 0) and (close < ema_10) and (ema_10 > ema_200) and inTimeWindow
+shortCond = (strategy.position_size > 0) and ((close > ema_10) and (close < low[1]))
+
+if (longCond)
+    strategy.entry("Long", strategy.long, pos)
+
+if (longCond[1])
+    buyPrice := open   
+
+if (shortCond or stopCond)   
+    strategy.close("Long", comment = "Exit" + (stopCond ? "SL" : ""))
+    buyPrice := na
+
+plot(buyPrice, color = color.lime, style = plot.style_linebr)
+plot(stopPrice, color = color.red, style = plot.style_linebr)
+    //strategy.close_all()
