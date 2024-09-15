@@ -1,0 +1,29 @@
+// This Pine Script™ code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © deep200412
+
+//@version=5
+strategy("RSICrossBelow30", overlay = true)
+pos = 20
+ema_20 = ta.ema(close,20)
+ema_50 = ta.ema(close,50)
+ema_200 = ta.ema(close, 200)
+
+plot(ema_200, color = color.purple)
+
+rsiVal = ta.rsi(close, 14) 
+rsiLevelLow = 30
+rsiLevelHigh = 50
+
+longCond = ta.crossunder(rsiVal, rsiLevelLow) and (close > ema_200 * 1.02)
+shortCond = ta.crossover(rsiVal, rsiLevelHigh)
+
+
+startTime = timestamp(2022,1,1)
+endTime = timestamp(2024,9,1)
+
+if (time >= startTime)
+    strategy.entry("Long", strategy.long, pos, when = longCond)
+    strategy.close("Long",when = shortCond)
+
+if (time > endTime)
+    strategy.close_all()
