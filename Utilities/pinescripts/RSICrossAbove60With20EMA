@@ -1,0 +1,54 @@
+// This Pine Script™ code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © deep200412
+
+//@version=5
+strategy("RSICrossAbove60With20EMA", overlay = true)
+pos = 20
+target = 10
+stoploss = 5
+
+ema_9 = ta.ema(close,9)
+ema_20 = ta.ema(close,20)
+ema_50 = ta.ema(close,50)
+ema_200 = ta.ema(close, 200)
+
+plot(ema_20, color = color.blue)
+plot(ema_200, color = color.purple)
+
+rsiVal = ta.rsi(close, 14) 
+rsiLevel = 60
+
+
+var float buyPrice = 0
+var float stopPrice = 0
+targetPrice = (strategy.position_size > 0  ? buyPrice * (1 + target/100.0) : na )
+//stopPrice = (strategy.position_size > 0 ? buyPrice * (1- stoploss/100.0) : na )
+
+longCond =  (strategy.position_size == 0 ) and ta.crossover(rsiVal, rsiLevel) and (close > open * 1.01) and (close > ema_200 * 1.02) 
+shortCond = (strategy.position_size > 0 ) and (close >= targetPrice)
+
+
+startTime = timestamp(2022,1,1)
+endTime = timestamp(2024,9,1)
+
+if (time >= startTime)
+    if(longCond)
+        strategy.entry("Long", strategy.long, pos)
+        stopPrice := low * 0.98
+
+if (longCond[1])
+    buyPrice := open
+
+stopCond = (strategy.position_size > 0) and (close < stopPrice)
+
+if (shortCond or stopCond)    
+    strategy.close("Long", comment = "Exit" + (stopCond ? "SL" : "Target"))
+    buyPrice := na
+    stopPrice := na
+
+if (time > endTime)
+    strategy.close_all()
+
+plot(buyPrice, color = color.lime, style = plot.style_linebr)
+plot(targetPrice, color = color.orange, style = plot.style_linebr)
+plot(stopPrice, color = color.red, style = plot.style_linebr)
