@@ -1,0 +1,32 @@
+// This Pine Script™ code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © deep200412
+
+//@version=5
+strategy("Simple MA crossover", overlay = true)
+pos = 20
+i_ma1 = input(10, "MA1")
+i_ma2 = input(50, "MA2")
+
+ema1 = ta.ema(close,i_ma1)
+ema2 = ta.ema(close,i_ma2)
+ema_200 = ta.ema(close, 200)
+
+plot(ema1, color = color.orange, linewidth = 2)
+plot(ema2, color = color.black, linewidth = 2)
+plot(ema_200, color = color.purple, linewidth = 2)
+
+longCond = ta.crossover(ema1, ema2) //and (close > ema_200*1.02)
+shortCond = ta.crossunder(ema1, ema2)
+
+start = timestamp(2022,1,1)
+end = timestamp(2024,8,31)
+
+if (time >= start and time < end)
+    strategy.entry("Long", strategy.long, pos, when = longCond)
+    strategy.close("Long",when = shortCond)
+
+if (time >= end)
+    strategy.close_all()
+
+
+
